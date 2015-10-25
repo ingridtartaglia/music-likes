@@ -1,19 +1,69 @@
-// Ionic Starter App
+(function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/pt_BR/sdk.js#xfbml=1&version=v2.5&appId=644508019025673";
+    fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
 
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
 angular.module('starter', ['ionic'])
 
-.run(function($ionicPlatform) {
-  $ionicPlatform.ready(function() {
-    // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
-    // for form inputs)
-    if(window.cordova && window.cordova.plugins.Keyboard) {
-      cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
+.run(['$rootScope', '$window', 'srvAuth',
+function($rootScope, $window, sAuth) {
+    $rootScope.user = {};
+    $window.fbAsyncInit = function() {
+        FB.init({
+            appId: "644508019025673",
+            status: true,
+            cookie: true,
+            xfbml: true,
+            version: 'v2.4',
+        });
+        sAuth.watchLoginChange();
+    };
+}])
+
+.factory('srvAuth', ['$rootScope', function($rootScope){
+    return {
+        watchLoginChange: function() {
+            var _self = this;
+            FB.Event.subscribe('auth.authResponseChange', function(res) {
+                if (res.status === 'connected') {
+                    _self.getUserInfo();
+                }
+            });
+        },
+        getUserInfo: function() {
+            var _self = this;
+            FB.api('/me', function(res) {
+                $rootScope.$apply(function() {
+                    $rootScope.user = _self.user = res;
+                    if ($rootScope.user) {
+                        _self.getUserMusic();
+                    }
+                });
+            });
+        },
+        getUserMusic: function(){
+            FB.api(
+                "/" + $rootScope.user.id + "/music",
+                function (response) {
+                    $rootScope.$apply(function() {
+                        if (response && !response.error) {
+                            $rootScope.user.likes = response;
+                        }
+                    });
+                }
+            );
+        },
+        logout: function() {
+            var _self = this;
+            FB.logout(function(response) {
+                $rootScope.$apply(function() {
+                    $rootScope.user = _self.user = {};
+                });
+            });
+        },
     }
-    if(window.StatusBar) {
-      StatusBar.styleDefault();
-    }
-  });
-})
+
+}])

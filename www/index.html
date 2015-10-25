@@ -1,34 +1,37 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-    <title></title>
-
-    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-
-    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <title>#23 - Music Likes</title>
     <link href="css/ionic.app.css" rel="stylesheet">
-    -->
-
-    <!-- ionic/angularjs js -->
     <script src="lib/ionic/js/ionic.bundle.js"></script>
-
-    <!-- cordova script (this will be a 404 during development) -->
-    <script src="cordova.js"></script>
-
-    <!-- your app's js -->
     <script src="js/app.js"></script>
-  </head>
-  <body ng-app="starter">
-
+</head>
+<body ng-app="starter">
+    <div id="fb-root"></div>
     <ion-pane>
-      <ion-header-bar class="bar-stable">
-        <h1 class="title">Ionic Blank Starter</h1>
-      </ion-header-bar>
-      <ion-content>
-      </ion-content>
+        <ion-content class="calm-bg">
+            <h1 class="h2 text-center padding">What kind of music do you like?</h1>
+            <p class="padding">We can show your likes based on your Facebook profile. Click on the button above and discover!
+            <br><strong>Don't worry, it's safe!</strong></p>
+
+            <div class="fb-login-button padding" data-max-rows="1" data-size="xlarge" data-show-faces="false"
+                data-scope="user_likes" data-auto-logout-link="true"></div>
+
+            <div class="list padding music-list" ng-show="$root.user">
+                <div class="item item-divider">Your name</div>
+                <a class="item" href="#">{{$root.user.name}}</a>
+
+                <div class="item item-divider">Bands/artists you most like:</div>
+                <a class="item" style="font-size:1em;" href="#" ng-show="$root.user.likes.data.length == 0">
+                    Sorry, you haven't liked any bands/artists.
+                </a>
+                <a class="item" href="#" ng-repeat="a in $root.user.likes.data">{{a.name}}</a>
+            </div>
+
+
+        </ion-content>
     </ion-pane>
-  </body>
+</body>
 </html>
